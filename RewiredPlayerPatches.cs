@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 
 namespace FTK_MultiMax_Rework {
-    public class RewiredPlayerHelperPatches {
+    public class RewiredPlayerPatches {
         public static bool FixRewire(int playerId, ref Player __result) {
             if (playerId < ReInput.players.playerCount) {
                 return true;

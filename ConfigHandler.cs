@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using UnityEngine;
 
 namespace FTK_MultiMax_Rework {
     public static class ConfigHandler {
@@ -21,6 +22,16 @@ namespace FTK_MultiMax_Rework {
 
             if (!File.Exists(configFilePath)) {
                 configFile.Save();
+            }
+        }
+
+        public static void InitializeMaxPlayers() {
+            if (ConfigHandler.MaxPlayersConfig != null) {
+                GameFlowMC.gMaxPlayers = ConfigHandler.MaxPlayersConfig.Value;
+                GameFlowMC.gMaxEnemies = GameFlowMC.gMaxPlayers;
+                uiQuickPlayerCreate.Default_Classes = new int[GameFlowMC.gMaxPlayers];
+            } else {
+                Debug.LogError("maxPlayersConfig is not initialized!");
             }
         }
     }

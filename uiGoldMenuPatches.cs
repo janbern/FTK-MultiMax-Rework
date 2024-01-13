@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Debug = UnityEngine.Debug;
+using UnityEngine;
 
 namespace FTK_MultiMax_Rework {
     public class uiGoldMenuPatches {
