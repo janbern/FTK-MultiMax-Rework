@@ -22,30 +22,11 @@ namespace FTK_MultiMax_Rework {
 
         private static Harmony Harmony { get; set; } = new Harmony(pluginGuid);
 
-        private ConfigEntry<int> maxPlayersConfig;
-
-        void Awake() {
-            GenerateConfig();
-        }
-
-        private void GenerateConfig() {
-            string configFilePath = Path.Combine(Paths.ConfigPath, "MultiMaxRework.cfg");
-
-            var configFile = new ConfigFile(configFilePath, true);
-
-            maxPlayersConfig = configFile.Bind("General",
-                                 "MaxPlayers",
-                                 5,
-                                 "The max number of players");
-
-            if (!File.Exists(configFilePath)) {
-                configFile.Save();
-            }
-        }
-
         public IEnumerator Start() {
-            InitializeMaxPlayers();
             Debug.Log("MultiMax Rework - Initializing...");
+            ConfigHandler.InitializeConfig();
+            InitializeMaxPlayers();
+            Debug.Log("MultiMax Rework - Patching...");
             PatchMethods();
             while (FTKHub.Instance == null) {
                 yield return null;
@@ -55,8 +36,8 @@ namespace FTK_MultiMax_Rework {
         }
 
         private void InitializeMaxPlayers() {
-            if (maxPlayersConfig != null) {
-                GameFlowMC.gMaxPlayers = maxPlayersConfig.Value;
+            if (ConfigHandler.MaxPlayersConfig != null) {
+                GameFlowMC.gMaxPlayers = ConfigHandler.MaxPlayersConfig.Value;
                 GameFlowMC.gMaxEnemies = GameFlowMC.gMaxPlayers;
                 uiQuickPlayerCreate.Default_Classes = new int[GameFlowMC.gMaxPlayers];
             } else {
@@ -65,17 +46,17 @@ namespace FTK_MultiMax_Rework {
         }
 
         private void PatchMethods() {
-            PatchMethod<uiCharacterCreateRoot>("Start", "AddMorePlayerSlotsInMenu", null);
-            PatchMethod<ReInput.PlayerHelper>("GetPlayer", "FuckRewire", new Type[] { typeof(int) });
-            //PatchMethod<uiGoldMenu>("Show", "GoldFix", null);
-            PatchMethod<uiGoldMenu>("Awake", "GoldAwake", null);
+            PatchMethod<uiCharacterCreateRoot>("Start", typeof(uiCharacterCreateRootPatches) ,"AddMorePlayerSlotsInMenu", null);
+            PatchMethod<ReInput.PlayerHelper>("GetPlayer", typeof(RewiredPlayerHelperPatches), "FixRewire", new Type[] { typeof(int) });
+            PatchMethod<uiGoldMenu>("Awake", typeof(uiGoldMenuPatches), "GoldAwake", null);
         }
 
-        private void PatchMethod<T>(string originalMethodName, string patchMethodName, Type[] parameterTypes = null) {
+        private void PatchMethod<T>(string originalMethodName, Type patchClass, string patchMethodName, Type[] parameterTypes = null) {
             MethodInfo original = AccessTools.Method(typeof(T), originalMethodName, parameterTypes);
-            MethodInfo patch = AccessTools.Method(typeof(Main), patchMethodName, null, null);
+            MethodInfo patch = AccessTools.Method(patchClass, patchMethodName, null, null);
             Harmony.Patch(original, new HarmonyMethod(patch));
         }
+
         private void CreateDummies() {
             Debug.Log("MAKING DUMMIES");
             List<GameObject> dummies = new List<GameObject>();
@@ -180,85 +161,5 @@ namespace FTK_MultiMax_Rework {
                 __result.m_PortraitActionPoints.Add(UnityEngine.Object.Instantiate(__result.m_PortraitActionPoints[__result.m_PortraitActionPoints.Count - 1], __result.m_PortraitActionPoints[__result.m_PortraitActionPoints.Count - 1].transform.parent));
             }
         }
-
-        public static bool FuckRewire(int playerId, ref Player __result) {
-            if (playerId < ReInput.players.playerCount) {
-                return true;
-            }
-            __result = ReInput.players.GetPlayer(2);
-            return false;
-        }
-
-        public static bool GoldAwake(uiGoldMenu __instance) {
-            var m_GoldEntriesField = Traverse.Create(__instance).Field("m_GoldEntries");
-
-            if (m_GoldEntriesField.GetValue() != null) {
-                int maxEntries = (GameFlowMC.gMaxPlayers - 1);
-
-                m_GoldEntriesField.GetValue<List<uiGoldMenuEntry>>().Add(__instance.m_FirstEntry);
-
-                for (int i = 1; i < maxEntries; i++) {
-                    uiGoldMenuEntry newEntry = UnityEngine.Object.Instantiate(__instance.m_FirstEntry);
-                    newEntry.transform.SetParent(__instance.m_FirstEntry.transform.parent, worldPositionStays: false);
-                    m_GoldEntriesField.GetValue<List<uiGoldMenuEntry>>().Add(newEntry);
-                    Debug.LogWarning(newEntry.name);
-                }
-            }
-
-            return false;
-        }
-
-        //public static void GoldFix(ref uiGoldMenu __instance, Vector2 _spos, CharacterOverworld _cow) {
-        //    int maxPlayers = GameFlowMC.gMaxPlayers;
-        //    if (maxPlayers == 3) {
-        //        return;
-        //    }
-
-        //    var value = new CharacterOverworld[4];
-
-        //    Traverse.Create(__instance).Field("m_OtherCows").SetValue(value);
-
-        //    CharacterOverworld[] newArray = Traverse.Create(__instance).Field("m_OtherCows").GetValue() as CharacterOverworld[];
-        //    if (newArray != null) {
-        //        for (int i = 0; i < newArray.Length; i++) {
-        //            Debug.LogWarning($"m_OtherCows[{i}] = {newArray[i]}");
-        //        }
-        //    } else {
-        //        Debug.LogWarning("m_OtherCows is null");
-        //    }
-        //}
-
-        //Debug.Log(Traverse.Create(__instance).Field("m_Cow").SetValue(_cow));
-
-        public static void AddMorePlayerSlotsInMenu(ref uiCharacterCreateRoot __instance) {
-            Debug.Log("[MULTIMAX] : " + __instance);
-            Debug.Log("[MULTIMAX] : " + __instance.m_CreateUITargets);
-            Debug.Log("[MULTIMAX] : " + SelectScreenCamera.Instance.m_PlayerTargets.Length);
-            if (__instance.m_CreateUITargets.Length < GameFlowMC.gMaxPlayers) {
-                Transform[] array = new Transform[GameFlowMC.gMaxPlayers];
-                Transform[] array2 = new Transform[GameFlowMC.gMaxPlayers];
-                Vector3 position = SelectScreenCamera.Instance.m_PlayerTargets[0].position;
-                Vector3 position2 = SelectScreenCamera.Instance.m_PlayerTargets[2].position;
-                for (int i = 0; i < GameFlowMC.gMaxPlayers; i++) {
-                    if (i < __instance.m_CreateUITargets.Length) {
-                        array[i] = __instance.m_CreateUITargets[i];
-                        array2[i] = SelectScreenCamera.Instance.m_PlayerTargets[i];
-                    } else {
-                        array[i] = UnityEngine.Object.Instantiate(array[i - 1], array[i - 1].parent);
-                        array2[i] = UnityEngine.Object.Instantiate(array2[i - 1], array2[i - 1].parent);
-                    }
-                }
-                __instance.m_CreateUITargets = array;
-                SelectScreenCamera.Instance.m_PlayerTargets = array2;
-                for (int j = 0; j < __instance.m_CreateUITargets.Length; j++) {
-                    __instance.m_CreateUITargets[j].GetComponent<RectTransform>().anchoredPosition = new Vector2(Mathf.Lerp(-550f, 550f, (float)j / (float)(__instance.m_CreateUITargets.Length - 1)), 129f);
-                }
-                for (int k = 0; k < SelectScreenCamera.Instance.m_PlayerTargets.Length; k++) {
-                    SelectScreenCamera.Instance.m_PlayerTargets[k].position = Vector3.Lerp(position, position2, (float)k / (float)(SelectScreenCamera.Instance.m_PlayerTargets.Length - 1));
-                }
-            }
-            Debug.Log("[MULTIMAX] : SLOT COUNT " + __instance.m_CreateUITargets.Length);
-        }
-
     }
 }
