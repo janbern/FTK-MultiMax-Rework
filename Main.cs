@@ -39,6 +39,7 @@ namespace FTK_MultiMax_Rework {
             PatchMethod<uiCharacterCreateRoot>("Start", typeof(uiCharacterCreateRootPatches) ,"AddMorePlayerSlotsInMenu", null);
             PatchMethod<ReInput.PlayerHelper>("GetPlayer", typeof(RewiredPlayerPatches), "FixRewire", new Type[] { typeof(int) });
             PatchMethod<uiGoldMenu>("Awake", typeof(uiGoldMenuPatches), "GoldAwake", null);
+            PatchMethod<uiPopupMenu>("Awake", typeof(uiPopupMenuPatches), "Postfix", null);
         }
 
         private void PatchMethod<T>(string originalMethodName, Type patchClass, string patchMethodName, Type[] parameterTypes = null) {
