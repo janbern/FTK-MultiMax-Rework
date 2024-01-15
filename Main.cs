@@ -40,6 +40,7 @@ namespace FTK_MultiMax_Rework {
             PatchMethod<ReInput.PlayerHelper>("GetPlayer", typeof(RewiredPlayerPatches), "FixRewire", new Type[] { typeof(int) });
             PatchMethod<uiGoldMenu>("Awake", typeof(uiGoldMenuPatches), "GoldAwake", null);
             PatchMethod<uiPopupMenu>("Awake", typeof(uiPopupMenuPatches), "Postfix", null);
+            PatchMethod<EncounterSession>("GiveOutLootXPGold", typeof(EncounterSessionPatches), "XPModifierPatch", null);
         }
 
         private void PatchMethod<T>(string originalMethodName, Type patchClass, string patchMethodName, Type[] parameterTypes = null) {
@@ -47,5 +48,6 @@ namespace FTK_MultiMax_Rework {
             MethodInfo patch = AccessTools.Method(patchClass, patchMethodName, null, null);
             Harmony.Patch(original, new HarmonyMethod(patch));
         }
+
     }
 }
