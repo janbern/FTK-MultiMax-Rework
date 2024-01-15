@@ -14,7 +14,7 @@ using static uiPopupMenu;
 
 namespace FTK_MultiMax_Rework {
     public static class uiPopupMenuPatches {
-        public static void Postfix(uiPopupMenu __instance) {
+        public static void PopupAwake(uiPopupMenu __instance) {
             if (__instance == null || __instance.m_Popups == null) {
                 return;
             }
