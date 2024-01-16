@@ -31,25 +31,11 @@ namespace FTK_MultiMax_Rework {
 
             typeof(uiQuickPlayerCreate).GetField("guiQuickPlayerCreates", BindingFlags.Static | BindingFlags.NonPublic).SetValue(null, new uiQuickPlayerCreate[GameFlowMC.gMaxPlayers]);
             uiQuickPlayerCreate.Default_Classes = new int[GameFlowMC.gMaxPlayers];
-            MethodInfo original = AccessTools.Method(typeof(uiCharacterCreateRoot), "Start", null, null);
-            MethodInfo patch = AccessTools.Method(typeof(Main), "AddMorePlayerSlotsInMenu", null, null);
-            Harmony.Patch(original, null, new HarmonyMethod(patch));
-
-            original = AccessTools.Method(typeof(ReInput.PlayerHelper), "GetPlayer", new Type[1] { typeof(int) }, (Type[])null);
-            patch = AccessTools.Method(typeof(Main), "FixRewire", null, null);
-            Harmony.Patch(original, new HarmonyMethod(patch), null, null);
-
-            original = AccessTools.Method(typeof(uiPortraitHolderManager), "Create", new Type[1] { typeof(HexLand) }, null);
-            patch = AccessTools.Method(typeof(Main), "AddMorePlayersToUI", null, null);
-            Harmony.Patch(original, null, new HarmonyMethod(patch));
-
-            original = AccessTools.Method(typeof(uiPlayerMainHud), "Update", null, null);
-            patch = AccessTools.Method(typeof(Main), "PlaceUI", null, null);
-            Harmony.Patch(original, new HarmonyMethod(patch));
-
-            original = AccessTools.Method(typeof(uiHudScroller), "Init", null, null);
-            patch = AccessTools.Method(typeof(Main), "InitHUD", null, null);
-            Harmony.Patch(original, new HarmonyMethod(patch));
+            Harmony.Patch(AccessTools.Method(typeof(uiCharacterCreateRoot), "Start", null, null), null, new HarmonyMethod(AccessTools.Method(typeof(Main), "AddMorePlayerSlotsInMenu", null, null)));
+            Harmony.Patch(AccessTools.Method(typeof(ReInput.PlayerHelper), "GetPlayer", new Type[1] { typeof(int) }, (Type[])null), new HarmonyMethod(AccessTools.Method(typeof(Main), "FixRewire", null, null)), null, null);
+            Harmony.Patch(AccessTools.Method(typeof(uiPortraitHolderManager), "Create", new Type[1] { typeof(HexLand) }, null), null, new HarmonyMethod(AccessTools.Method(typeof(Main), "AddMorePlayersToUI", null, null)));
+            Harmony.Patch(AccessTools.Method(typeof(uiPlayerMainHud), "Update", null, null), new HarmonyMethod(AccessTools.Method(typeof(Main), "PlaceUI", null, null)));
+            Harmony.Patch(AccessTools.Method(typeof(uiHudScroller), "Init", null, null), new HarmonyMethod(AccessTools.Method(typeof(Main), "InitHUD", null, null)));
 
             while (FTKHub.Instance == null) {
                 yield return null;
@@ -124,9 +110,9 @@ namespace FTK_MultiMax_Rework {
         }
 
         public static void AddMorePlayerSlotsInMenu(ref uiCharacterCreateRoot __instance) {
-            Debug.Log("[MULTIMAX] : " + __instance);
-            Debug.Log("[MULTIMAX] : " + __instance.m_CreateUITargets);
-            Debug.Log("[MULTIMAX] : " + SelectScreenCamera.Instance.m_PlayerTargets.Length);
+            Debug.Log("[MULTIMAX REWORK] : " + __instance);
+            Debug.Log("[MULTIMAX REWORK] : " + __instance.m_CreateUITargets);
+            Debug.Log("[MULTIMAX REWORK] : " + SelectScreenCamera.Instance.m_PlayerTargets.Length);
             if (__instance.m_CreateUITargets.Length < GameFlowMC.gMaxPlayers) {
                 Transform[] array = new Transform[GameFlowMC.gMaxPlayers];
                 Transform[] array2 = new Transform[GameFlowMC.gMaxPlayers];
@@ -150,7 +136,7 @@ namespace FTK_MultiMax_Rework {
                     SelectScreenCamera.Instance.m_PlayerTargets[k].position = Vector3.Lerp(position, position2, (float)k / (float)(SelectScreenCamera.Instance.m_PlayerTargets.Length - 1));
                 }
             }
-            Debug.Log("[MULTIMAX] : SLOT COUNT " + __instance.m_CreateUITargets.Length);
+            Debug.Log("[MULTIMAX REWORK] : SLOT COUNT " + __instance.m_CreateUITargets.Length);
         }
 
     }
