@@ -32,10 +32,6 @@ namespace FTK_MultiMax_Rework {
             }
             FTKHub.Instance.m_Dummies = dummies.ToArray();
             GameObject[] dummies2 = FTKHub.Instance.m_Dummies;
-            foreach (GameObject go in dummies2) {
-                Debug.Log("DUMMY");
-                Debug.Log(go.name);
-            }
             Debug.Log("MultiMax - Done");
         }
 
