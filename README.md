@@ -15,7 +15,6 @@ All my tests were made with 5 players but you can try yourself with more it shou
 **Note:**
 
 - **IMPORTANT:** Set the exact number of players in the config so that not only the UI corresponds to the number of players but the extra buttons match too! (So if you play as 4 do not leave 5 in the config but set 4, same thing applies if you play with 3).
-- Some other errors from the previous mod still remain and i'm working on it like the black screen when starting a new game, for now restarting the game is the only option...
 
 **How to install:**
 
