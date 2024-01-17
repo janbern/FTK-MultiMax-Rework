@@ -46,17 +46,5 @@ namespace FTK_MultiMax_Rework {
             }
             return dummy;
         }
-
-        public static void DummySlide() {
-            DummyAttackSlide[] array = UnityEngine.Object.FindObjectsOfType<DummyAttackSlide>();
-            foreach (DummyAttackSlide dummyAttackSlide in array) {
-                if (dummyAttackSlide.m_Distances.Length < 1000) {
-                    float[] array2 = new float[1000];
-                    Array.Copy(dummyAttackSlide.m_Distances, array2, dummyAttackSlide.m_Distances.Length);
-                    dummyAttackSlide.m_Distances = array2;
-                    Debug.Log(dummyAttackSlide.m_Distances);
-                }
-            }
-        }
     }
 }

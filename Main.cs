@@ -18,7 +18,7 @@ namespace FTK_MultiMax_Rework {
     public class Main : BaseUnityPlugin {
         private const string pluginGuid = "fortheking.edm.multimaxrework";
         private const string pluginName = "MultiMaxRework";
-        private const string pluginVersion = "1.0";
+        private const string pluginVersion = "1.2";
 
         private static Harmony Harmony { get; set; } = new Harmony(pluginGuid);
 
@@ -32,10 +32,11 @@ namespace FTK_MultiMax_Rework {
             typeof(uiQuickPlayerCreate).GetField("guiQuickPlayerCreates", BindingFlags.Static | BindingFlags.NonPublic).SetValue(null, new uiQuickPlayerCreate[GameFlowMC.gMaxPlayers]);
             uiQuickPlayerCreate.Default_Classes = new int[GameFlowMC.gMaxPlayers];
             Harmony.Patch(AccessTools.Method(typeof(uiCharacterCreateRoot), "Start", null, null), null, new HarmonyMethod(AccessTools.Method(typeof(Main), "AddMorePlayerSlotsInMenu", null, null)));
-            Harmony.Patch(AccessTools.Method(typeof(ReInput.PlayerHelper), "GetPlayer", new Type[1] { typeof(int) }, (Type[])null), new HarmonyMethod(AccessTools.Method(typeof(Main), "FixRewire", null, null)), null, null);
+            Harmony.Patch(AccessTools.Method(typeof(ReInput.PlayerHelper), "GetPlayer", new Type[1] { typeof(int) }, null), new HarmonyMethod(AccessTools.Method(typeof(Main), "FixRewire", null, null)), null, null);
             Harmony.Patch(AccessTools.Method(typeof(uiPortraitHolderManager), "Create", new Type[1] { typeof(HexLand) }, null), null, new HarmonyMethod(AccessTools.Method(typeof(Main), "AddMorePlayersToUI", null, null)));
             Harmony.Patch(AccessTools.Method(typeof(uiPlayerMainHud), "Update", null, null), new HarmonyMethod(AccessTools.Method(typeof(Main), "PlaceUI", null, null)));
             Harmony.Patch(AccessTools.Method(typeof(uiHudScroller), "Init", null, null), new HarmonyMethod(AccessTools.Method(typeof(Main), "InitHUD", null, null)));
+            Harmony.Patch(AccessTools.Method(typeof(Diorama), "_resetTargetQueue", null, null), new HarmonyMethod(AccessTools.Method(typeof(Main), "DummySlide", null, null)), null, null);
 
             while (FTKHub.Instance == null) {
                 yield return null;
@@ -137,6 +138,18 @@ namespace FTK_MultiMax_Rework {
                 }
             }
             Debug.Log("[MULTIMAX REWORK] : SLOT COUNT " + __instance.m_CreateUITargets.Length);
+        }
+
+        public static void DummySlide() {
+            DummyAttackSlide[] array = UnityEngine.Object.FindObjectsOfType<DummyAttackSlide>();
+            foreach (DummyAttackSlide dummyAttackSlide in array) {
+                if (dummyAttackSlide.m_Distances.Length < 1000) {
+                    float[] array2 = new float[1000];
+                    Array.Copy(dummyAttackSlide.m_Distances, array2, dummyAttackSlide.m_Distances.Length);
+                    dummyAttackSlide.m_Distances = array2;
+                    Debug.Log(dummyAttackSlide.m_Distances);
+                }
+            }
         }
 
     }
