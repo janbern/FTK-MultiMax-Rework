@@ -18,7 +18,7 @@ namespace FTK_MultiMax_Rework {
     public class Main : BaseUnityPlugin {
         private const string pluginGuid = "fortheking.edm.multimaxrework";
         private const string pluginName = "MultiMaxRework";
-        private const string pluginVersion = "1.2";
+        private const string pluginVersion = "1.4";
 
         private static Harmony Harmony { get; set; } = new Harmony(pluginGuid);
 

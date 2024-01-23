@@ -19,7 +19,7 @@ All my tests were made with 5 players but you can try yourself with more it shou
 **How to install:**
 
 1. Download and install [BepInEx](https://for-the-king.thunderstore.io/package/BepInEx/BepInExPack_ForTheKing/) by following their guide.
-2. Download FTK MultiMax Rework .dll file from the [Releases](https://github.com/justedm/FTK-MultiMax-Rework/releases/tag/v1.3) and put it inside of the BepInEx plugins folder (or download from [Thunderstore](https://for-the-king.thunderstore.io/package/edm/FTKMultiMaxRework/)).
+2. Download FTK MultiMax Rework .dll file from the [Releases](https://github.com/justedm/FTK-MultiMax-Rework/releases/tag/v1.4) and put it inside of the BepInEx plugins folder (or download from [Thunderstore](https://for-the-king.thunderstore.io/package/edm/FTKMultiMaxRework/)).
 3. Launch the game!
 
 **N.B:** The config file is generated after the first launch so if u need to set the value of the maxPlayers you can do so after (game needs to be restarted) otherwise you can download the config file and insert it manually in the config folder of BepInEx so you dont need to restart the game after the first launch.
