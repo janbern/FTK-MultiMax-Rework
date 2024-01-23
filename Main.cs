@@ -34,6 +34,7 @@ namespace FTK_MultiMax_Rework {
             Harmony.Patch(AccessTools.Method(typeof(uiCharacterCreateRoot), "Start", null, null), null, new HarmonyMethod(AccessTools.Method(typeof(Main), "AddMorePlayerSlotsInMenu", null, null)));
             Harmony.Patch(AccessTools.Method(typeof(ReInput.PlayerHelper), "GetPlayer", new Type[1] { typeof(int) }, null), new HarmonyMethod(AccessTools.Method(typeof(Main), "FixRewire", null, null)), null, null);
             Harmony.Patch(AccessTools.Method(typeof(uiPortraitHolderManager), "Create", new Type[1] { typeof(HexLand) }, null), null, new HarmonyMethod(AccessTools.Method(typeof(Main), "AddMorePlayersToUI", null, null)));
+            Harmony.Patch(AccessTools.Method(typeof(uiPortraitHolder), "UpdateDisplay", null, null), new HarmonyMethod(AccessTools.Method(typeof(Main), "UpdateDisplayPatch", null, null)));
             Harmony.Patch(AccessTools.Method(typeof(uiPlayerMainHud), "Update", null, null), new HarmonyMethod(AccessTools.Method(typeof(Main), "PlaceUI", null, null)));
             Harmony.Patch(AccessTools.Method(typeof(uiHudScroller), "Init", null, null), new HarmonyMethod(AccessTools.Method(typeof(Main), "InitHUD", null, null)));
             Harmony.Patch(AccessTools.Method(typeof(Diorama), "_resetTargetQueue", null, null), new HarmonyMethod(AccessTools.Method(typeof(Main), "DummySlide", null, null)), null, null);
@@ -97,9 +98,63 @@ namespace FTK_MultiMax_Rework {
         }
 
         public static void AddMorePlayersToUI(ref uiPortraitHolder __result) {
-            for (int i = 2; i < GameFlowMC.gMaxPlayers; i++) {
-                __result.m_PortraitActionPoints.Add(UnityEngine.Object.Instantiate(__result.m_PortraitActionPoints[__result.m_PortraitActionPoints.Count - 1], __result.m_PortraitActionPoints[__result.m_PortraitActionPoints.Count - 1].transform.parent));
+            int currentCount = __result.m_PortraitActionPoints.Count;
+
+            for (int i = currentCount; i < GameFlowMC.gMaxPlayers; i++) {
+                uiPortraitActionPoint newActionPoint = UnityEngine.Object.Instantiate(
+                    __result.m_PortraitActionPoints[currentCount - 1],
+                    __result.m_PortraitActionPoints[currentCount - 1].transform.parent
+                );
+                __result.m_PortraitActionPoints.Add(newActionPoint);
             }
+        }
+
+        public static bool UpdateDisplayPatch(uiPortraitHolder __instance, ref bool __result) {
+            if (__instance.m_PortraitActionPoints != null) {
+                FieldInfo followCarrierField = typeof(uiPortraitHolder).GetField("m_FollowCarrier", BindingFlags.NonPublic | BindingFlags.Instance);
+                FieldInfo carrierPassengersField = typeof(uiPortraitHolder).GetField("m_CarrierPassengers", BindingFlags.NonPublic | BindingFlags.Instance);
+
+                MiniHexInfo followCarrier = (MiniHexInfo)followCarrierField.GetValue(__instance);
+                List<CharacterOverworld> carrierPassengers = (List<CharacterOverworld>)carrierPassengersField.GetValue(__instance);
+
+
+                if (followCarrierField == null && __instance.m_HexLand.m_PlayersInHex.Count == 0) {
+                    __instance.gameObject.SetActive(value: false);
+                    UnityEngine.Object.Destroy(__instance.gameObject);
+                    return false;
+                }
+                __instance.gameObject.SetActive(value: true);
+                __instance.m_PortraitAndName.Hide();
+                __instance.m_PortraitRoot.gameObject.SetActive(value: true);
+
+                foreach (uiPortraitActionPoint portraitActionPoint in __instance.m_PortraitActionPoints) {
+                    portraitActionPoint.ResetShouldShow();
+                }
+
+                if (followCarrier != null) {
+                    int num = 0;
+                    foreach (CharacterOverworld carrierPassenger in carrierPassengers) {
+                        if (num < __instance.m_PortraitActionPoints.Count) {
+                            __instance.m_PortraitActionPoints[num].CalculateShouldShow(carrierPassenger, _alwaysShowPortrait: true);
+                        }
+                        num++;
+                    }
+                } else {
+                    int num2 = 0;
+                    foreach (CharacterOverworld item in __instance.m_HexLand.m_PlayersInHex) {
+                        if (num2 < __instance.m_PortraitActionPoints.Count) {
+                            __instance.m_PortraitActionPoints[num2].CalculateShouldShow(item);
+                        }
+                        num2++;
+                    }
+                }
+
+                foreach (uiPortraitActionPoint portraitActionPoint2 in __instance.m_PortraitActionPoints) {
+                    portraitActionPoint2.UpdateShow();
+                }
+            }
+            __result = true;
+            return false;
         }
 
         public static bool FixRewire(int playerId, ref Player __result) {
