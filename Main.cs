@@ -159,26 +159,7 @@ namespace FTK_MultiMax_Rework {
 
     public static bool FixRewire(int playerId, ref Player __result)
     {
-        // Check if the controller is already assigned to a player
-        foreach (var player in ReInput.players.AllPlayers)
-        {
-            if (player.controllers.ContainsController(ReInput.controllers.GetController(ControllerType.Joystick, playerId)))
-            {
-                // Controller is already assigned to this player
-                __result = player;
-                return false;
-            }
-        }
-    
-        // If the controller is not assigned, assign it to the specified player
-        if (playerId < ReInput.players.playerCount)
-        {
-            __result = ReInput.players.GetPlayer(playerId);
-            return false;
-        }
-    
-        // If no valid player is found, return true to allow default behavior
-        return true;
+        return false;
     }
 
 
