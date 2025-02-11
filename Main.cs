@@ -157,13 +157,30 @@ namespace FTK_MultiMax_Rework {
             return false;
         }
 
-        public static bool FixRewire(int playerId, ref Player __result) {
-            if (playerId < ReInput.players.playerCount) {
-                return true;
+    public static bool FixRewire(int playerId, ref Player __result)
+    {
+        // Check if the controller is already assigned to a player
+        foreach (var player in ReInput.players.AllPlayers)
+        {
+            if (player.controllers.ContainsController(ReInput.controllers.GetController(ControllerType.Joystick, playerId)))
+            {
+                // Controller is already assigned to this player
+                __result = player;
+                return false;
             }
-            __result = ReInput.players.GetPlayer(2);
+        }
+    
+        // If the controller is not assigned, assign it to the specified player
+        if (playerId < ReInput.players.playerCount)
+        {
+            __result = ReInput.players.GetPlayer(playerId);
             return false;
         }
+    
+        // If no valid player is found, return true to allow default behavior
+        return true;
+    }
+
 
         public static void AddMorePlayerSlotsInMenu(ref uiCharacterCreateRoot __instance) {
             Debug.Log("[MULTIMAX REWORK] : " + __instance);
