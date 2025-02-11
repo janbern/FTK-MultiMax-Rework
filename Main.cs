@@ -156,10 +156,10 @@ namespace FTK_MultiMax_Rework {
             __result = true;
             return false;
         }
-
+    // Somehow the game passes controllerId as PlayerId, gotta find a fix
     public static bool FixRewire(int playerId, ref Player __result)
     {
-        return false;
+        return true;
     }
 
 
